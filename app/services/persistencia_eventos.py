@@ -11,14 +11,8 @@ async def guardar_evento_kardex_pendiente(session: Session, evento: str, almacen
         )
     ).first()
 
-    if kardex:
-        data_id = session.exec(
-            select(EventoPendienteKardexBienConsumoEntity)
-            .order_by(col(EventoPendienteKardexBienConsumoEntity.id).desc())
-        ).first()
-        
+    if kardex and kardex.id is not None:
         pendiente = EventoPendienteKardexBienConsumoEntity(
-            id=1 if data_id is None else data_id.id + 1,
             kardex_bien_consumo_id=kardex.id,
             evento=evento,
             data=data
