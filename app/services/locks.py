@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 from sqlmodel import Session, select
-
 from app.entities import KardexLockEntity
 
 

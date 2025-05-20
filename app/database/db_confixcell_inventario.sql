@@ -12,7 +12,7 @@ saldo_cant DECIMAL(20,2) NOT NULL DEFAULT 0,
 saldo_valor_uni DECIMAL(20,2) NOT NULL DEFAULT 0,
 saldo_valor_tot DECIMAL(20,2) NOT NULL DEFAULT 0);
 
-CREATE TABLE kardex_detalle_bien_consumo (
+CREATE TABLE kardex_movimiento_bien_consumo (
 id INT PRIMARY KEY NOT NULL,
 kardex_bien_consumo_id INT NOT NULL,
 movimiento_uuid VARCHAR(50) NOT NULL UNIQUE,
@@ -21,7 +21,7 @@ movimiento_tipo VARCHAR(100) NOT NULL,
 fecha DATETIME NOT NULL,
 documento_fuente_cod_serie VARCHAR(50) NOT NULL,
 documento_fuente_cod_numero INT NOT NULL,
-concepto VARCHAR(100) NOT NULL,
+concepto VARCHAR(100),
 entrada_cant DECIMAL(20,2),
 entrada_costo_uni DECIMAL(20,2),
 entrada_costo_tot DECIMAL(20,2),
@@ -43,5 +43,5 @@ evento VARCHAR(100) NOT NULL,
 data JSON NOT NULL,
 fecha DATETIME NOT NULL);
 
-ALTER TABLE kardex_detalle_bien_consumo ADD CONSTRAINT fk1 FOREIGN KEY (kardex_bien_consumo_id) REFERENCES kardex_bien_consumo(id) ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE kardex_movimiento_bien_consumo ADD CONSTRAINT fk1 FOREIGN KEY (kardex_bien_consumo_id) REFERENCES kardex_bien_consumo(id) ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE evento_pendiente_kardex_bien_consumo ADD CONSTRAINT fk2 FOREIGN KEY (kardex_bien_consumo_id) REFERENCES kardex_bien_consumo(id) ON DELETE CASCADE ON UPDATE NO ACTION;

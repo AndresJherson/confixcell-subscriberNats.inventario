@@ -1,12 +1,13 @@
+from sqlalchemy import Column
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
 from datetime import datetime
 
 from app.entities.KardexBienConsumoEntity import KardexBienConsumoEntity
 
-class KardexMovimientoBienConsumoEntity(SQLModel, table=True):
-    id: int = Field(primary_key=True)
-    kardex_bien_consumo_id: int = Field(foreign_key="kardexbienconsumo.id")
+class KardexMovimientoBienConsumoEntity(SQLModel, table=True, table_name="kardex_movimiento_bien_consumo"):
+    id: int = Field(sa_column=Column(primary_key=True, autoincrement=False))
+    kardex_bien_consumo_id: int = Field(foreign_key="kardex_bien_consumo.id")
     movimiento_uuid: str = Field(max_length=50, unique=True)
     movimiento_ref_uuid: Optional[str] = Field(default=None)
     movimiento_tipo: str = Field(max_length=100)

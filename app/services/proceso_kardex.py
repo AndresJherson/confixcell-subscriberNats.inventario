@@ -6,30 +6,30 @@ from app.entities.KardexBienConsumoEntity import KardexBienConsumoEntity
 from app.models.TipoEventosNats import EventoKardexBienConsumo
 
 
-def procesar_data(session: Session, evento: str, clave: str, almacen_uuid: str, bien_consumo_uuid: str, data: dict[str, Any]):
+def procesar_movimientos_por_clave_evento(session: Session, evento: str, clave: str, almacen_uuid: str, bien_consumo_uuid: str, data: dict[str, Any]):
     match evento:
         
         case EventoKardexBienConsumo.CREAR_MOVIMIENTOS.value:
             movimientos: list[dict[str, Any]] = data.get("crear", []).get(clave, []).get("movimientos", [])
-            kardex_id = crear_obtener_kardex(session, almacen_uuid, bien_consumo_uuid)
-            crear_movimientos(session, kardex_id, movimientos )
+            kardex_id = _crear_obtener_kardex(session, almacen_uuid, bien_consumo_uuid)
+            _crear_movimientos(session, kardex_id, movimientos )
             
         case EventoKardexBienConsumo.ACTUALIZAR_MOVIMIENTOS.value:
             movimientos_eliminar: list[dict[str, Any]] = data.get("eliminar", []).get(clave, []).get("movimientos", [])
             movimientos_crear: list[dict[str, Any]] = data.get("crear", []).get(clave, []).get("movimientos", [])
-            kardex_id = crear_obtener_kardex(session, almacen_uuid, bien_consumo_uuid)
-            actualizar_movimientos(session, kardex_id, movimientos_eliminar, movimientos_crear)
+            kardex_id = _crear_obtener_kardex(session, almacen_uuid, bien_consumo_uuid)
+            _actualizar_movimientos(session, kardex_id, movimientos_eliminar, movimientos_crear)
                 
         case EventoKardexBienConsumo.ELIMINAR_MOVIMIENTOS.value:
             movimientos: list[dict[str, Any]] = data.get("eliminar", []).get(clave, []).get("movimientos", [])
-            kardex_id = crear_obtener_kardex(session, almacen_uuid, bien_consumo_uuid)
-            eliminar_movimientos(session, kardex_id, movimientos)
+            kardex_id = _crear_obtener_kardex(session, almacen_uuid, bien_consumo_uuid)
+            _eliminar_movimientos(session, kardex_id, movimientos)
             
         case _:
             return None
         
 
-def crear_obtener_kardex(session: Session, almacen_uuid: str, bien_consumo_uuid: str) -> int:
+def _crear_obtener_kardex(session: Session, almacen_uuid: str, bien_consumo_uuid: str) -> int:
     
     kardex = session.exec(
         select(KardexBienConsumoEntity).where(
@@ -64,7 +64,7 @@ def get_movimiento_id(session: Session) -> int:
     return 1 if data_id is None else data_id.id + 1
 
 
-def crear_movimientos(session: Session, kardex_id: int, movimientos: list[dict[str,Any]]):
+def _crear_movimientos(session: Session, kardex_id: int, movimientos: list[dict[str,Any]]):
     session.add_all(
         KardexMovimientoBienConsumoEntity(
             id=get_movimiento_id(session),
@@ -86,10 +86,10 @@ def crear_movimientos(session: Session, kardex_id: int, movimientos: list[dict[s
     )
     pass
 
-def actualizar_movimientos(session: Session, kardex_id: int, movimientos_eliminar: list[dict[str,Any]], movimientos_crear: list[dict[str,Any]]):
+def _actualizar_movimientos(session: Session, kardex_id: int, movimientos_eliminar: list[dict[str,Any]], movimientos_crear: list[dict[str,Any]]):
     pass
 
-def eliminar_movimientos(session: Session, kardex_id: int, movimientos: list[dict[str,Any]]):
+def _eliminar_movimientos(session: Session, kardex_id: int, movimientos: list[dict[str,Any]]):
     pass
 
 
