@@ -1,23 +1,22 @@
 query_bien_consumo = """
-
 with cte_movimientos as (
 
     select
         
-        entrada_bien_consumo.id as movimiento_id,
         entrada_bien_consumo.uuid as movimiento_uuid,
         null as movimiento_ref_uuid,
+        'EntradaBienConsumoValorNuevo' as movimiento_tipo,
 
         documento_fuente.f_emision as fecha,
-        documento_fuente.cod_serie as documento_cod_serie,
-        documento_fuente.cod_numero as documento_cod_numero,
+        documento_fuente.cod_serie as documento_fuente_cod_serie,
+        documento_fuente.cod_numero as documento_fuente_cod_numero,
         documento_fuente.concepto as concepto,
 
-        entrada_bien_consumo.cant as entrada_cantidad,
+        entrada_bien_consumo.cant as entrada_cant,
         entrada_bien_consumo_valor_nuevo.valor_uni as entrada_costo_uni,
         entrada_bien_consumo.cant * entrada_bien_consumo_valor_nuevo.valor_uni as entrada_costo_tot,
 
-        null as salida_cantidad,
+        null as salida_cant,
         null as salida_costo_uni,
         null as salida_costo_tot
 
@@ -31,20 +30,20 @@ with cte_movimientos as (
 
     select
         
-        entrada_bien_consumo.id as movimiento_id,
         entrada_bien_consumo.uuid as movimiento_uuid,
         salida_bien_consumo.uuid as movimiento_ref_uuid,
+        'EntradaBienConsumoValorSalida' as movimiento_tipo,
 
         documento_fuente.f_emision as fecha,
-        documento_fuente.cod_serie as documento_cod_serie,
-        documento_fuente.cod_numero as documento_cod_numero,
+        documento_fuente.cod_serie as documento_fuente_cod_serie,
+        documento_fuente.cod_numero as documento_fuente_cod_numero,
         documento_fuente.concepto as concepto,
 
-        entrada_bien_consumo.cant as entrada_cantidad,
+        entrada_bien_consumo.cant as entrada_cant,
         0 as entrada_costo_uni,
         0 as entrada_costo_tot,
 
-        null as salida_cantidad,
+        null as salida_cant,
         null as salida_costo_uni,
         null as salida_costo_tot
 
@@ -59,20 +58,20 @@ with cte_movimientos as (
 
     select
         
-        salida_bien_consumo.id as movimiento_id,
         salida_bien_consumo.uuid as movimiento_uuid,
         null as movimiento_ref_uuid,
+        'SalidaBienConsumoValorNuevo' as movimiento_tipo,
 
         documento_fuente.f_emision as fecha,
-        documento_fuente.cod_serie as documento_cod_serie,
-        documento_fuente.cod_numero as documento_cod_numero,
+        documento_fuente.cod_serie as documento_fuente_cod_serie,
+        documento_fuente.cod_numero as documento_fuente_cod_numero,
         documento_fuente.concepto as concepto,
 
-        null as entrada_cantidad,
+        null as entrada_cant,
         null as entrada_costo_uni,
         null as entrada_costo_tot,
 
-        salida_bien_consumo.cant as salida_cantidad,
+        salida_bien_consumo.cant as salida_cant,
         0 as salida_costo_uni,
         0 as salida_costo_tot
 
@@ -86,20 +85,20 @@ with cte_movimientos as (
 
     select
         
-        salida_bien_consumo.id as movimiento_id,
         salida_bien_consumo.uuid as movimiento_uuid,
         entrada_bien_consumo.uuid as movimiento_ref_uuid,
+        'SalidaBienConsumoValorEntrada' as movimiento_tipo,
 
         documento_fuente.f_emision as fecha,
-        documento_fuente.cod_serie as documento_cod_serie,
-        documento_fuente.cod_numero as documento_cod_numero,
+        documento_fuente.cod_serie as documento_fuente_cod_serie,
+        documento_fuente.cod_numero as documento_fuente_cod_numero,
         documento_fuente.concepto as concepto,
 
-        null as entrada_cantidad,
+        null as entrada_cant,
         null as entrada_costo_uni,
         null as entrada_costo_tot,
 
-        salida_bien_consumo.cant as salida_cantidad,
+        salida_bien_consumo.cant as salida_cant,
         0 as salida_costo_uni,
         0 as salida_costo_tot
 
@@ -114,20 +113,20 @@ with cte_movimientos as (
 
     select
         
-        salida_bien_consumo.id as movimiento_id,
         salida_bien_consumo.uuid as movimiento_uuid,
         null as movimiento_ref_uuid,
+        'NotaVentaSalidaBienConsumo' as movimiento_tipo,
 
         documento_fuente.f_emision as fecha,
-        documento_fuente.cod_serie as documento_cod_serie,
-        documento_fuente.cod_numero as documento_cod_numero,
+        documento_fuente.cod_serie as documento_fuente_cod_serie,
+        documento_fuente.cod_numero as documento_fuente_cod_numero,
         documento_fuente.concepto as concepto,
 
-        null as entrada_cantidad,
+        null as entrada_cant,
         null as entrada_costo_uni,
         null as entrada_costo_tot,
 
-        salida_bien_consumo.cant as salida_cantidad,
+        salida_bien_consumo.cant as salida_cant,
         0 as salida_costo_uni,
         0 as salida_costo_tot
 
@@ -141,20 +140,20 @@ with cte_movimientos as (
 
     select
         
-        nv_servicio_reparacion_recurso_bien_consumo.id as movimiento_id,
         nv_servicio_reparacion_recurso_bien_consumo.uuid as movimiento_uuid,
         null as movimiento_ref_uuid,
+        'NotaVentaSalidaProduccionServicioReparacionRecursoBienConsumo' as movimiento_tipo,
 
         nv_servicio_reparacion_recurso_bien_consumo.fecha as fecha,
-        documento_fuente.cod_serie as documento_cod_serie,
-        documento_fuente.cod_numero as documento_cod_numero,
+        documento_fuente.cod_serie as documento_fuente_cod_serie,
+        documento_fuente.cod_numero as documento_fuente_cod_numero,
         documento_fuente.concepto as 'servicio de reparación',
 
-        null as entrada_cantidad,
+        null as entrada_cant,
         null as entrada_costo_uni,
         null as entrada_costo_tot,
 
-        nv_servicio_reparacion_recurso_bien_consumo.cant as salida_cantidad,
+        nv_servicio_reparacion_recurso_bien_consumo.cant as salida_cant,
         0 as salida_costo_uni,
         0 as salida_costo_tot
 
@@ -167,5 +166,5 @@ with cte_movimientos as (
     and documento_fuente.f_anulacion is null
 )
 select * from cte_movimientos
-order by fecha asc, movimiento_id asc;
+order by fecha asc;
 """
