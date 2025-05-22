@@ -1,6 +1,10 @@
 import os
 
-NATS_HOST = os.getenv("NATS_HOST")
+def get_env_NATS():
+    NATS_HOST = os.getenv("NATS_HOST")
+    if NATS_HOST is None:
+        raise Exception("NATS_HOST no propocionado")
+    return NATS_HOST
 
 DB_ORIGEN_HOST = os.getenv("DB_ORIGEN_HOST")
 DB_ORIGEN_NAME = os.getenv("DB_ORIGEN_NAME")

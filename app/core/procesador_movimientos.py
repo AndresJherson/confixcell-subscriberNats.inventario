@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Hashable
 from pandas import DataFrame
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.MovimientoTipoBienConsumo import MovimientoTipoBienConsumo
+from app.models import MovimientoTipoBienConsumo
 
 class ProcesadorMovimientos:
     

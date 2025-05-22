@@ -1,29 +1,31 @@
+from app.core.proceso_movimientos import procesar_movimientos_por_evento
+from app.entities import EventoPendienteKardexBienConsumoEntity
+from app.services.errores import logger
 from typing import Any
-from app.entities.EventoPendienteKardexBienConsumoEntity import EventoPendienteKardexBienConsumoEntity
 from app.models.TipoEventosNats import EventoKardexBienConsumo
+from app.services.errores import registrar_error_kardex
 from app.services.locks import intentar_bloquear_clave, liberar_clave
-from app.services.proceso_movimientos import procesar_movimientos_por_evento
-from services.persistencia_eventos import guardar_evento_kardex_pendiente, obtener_evento_kardex_pendiente
 from app.database.database import get_session_destino
-                
+from app.services.persistencia import guardar_evento_kardex_pendiente, obtener_evento_kardex_pendiente
+
 async def procesar_kardex_por_evento(evento: str, data: dict[str, Any]) -> None:
     match evento:
         
         case EventoKardexBienConsumo.CREAR_MOVIMIENTOS.value:
-            record: dict[str, Any] = data["crear"]
+            record: dict[str, Any] = data.get("crear", {})
             claves = list(record.keys())
             await _proceso_principal(evento, claves, data)
             
         case EventoKardexBienConsumo.ACTUALIZAR_MOVIMIENTOS.value:
-            record_eliminar: dict[str, Any] = data["eliminar"]
-            record_crear: dict[str, Any] = data["crear"]
+            record_eliminar: dict[str, Any] = data.get("eliminar", {})
+            record_crear: dict[str, Any] = data.get("crear", {})
             claves_eliminar = list(record_eliminar.keys())
             claves_crear = list(record_crear.keys())
             claves = list(set(claves_eliminar + claves_crear))
             await _proceso_principal(evento, claves, data)
             
         case EventoKardexBienConsumo.ELIMINAR_MOVIMIENTOS.value:
-            record: dict[str, Any] = data["eliminar"]
+            record: dict[str, Any] = data.get("eliminar", {})
             claves = list(record.keys())
             await _proceso_principal(evento, claves, data)
             
@@ -35,6 +37,9 @@ async def _proceso_principal(evento: str, claves: list[str], data: dict[str, Any
     for clave in claves:
         
         almacen_uuid, bien_consumo_uuid = clave.split("|")
+        if len(almacen_uuid) == 0 and len(bien_consumo_uuid) == 0:
+            logger.error("Clave inválido")
+            continue
 
         async with get_session_destino() as session:
             resultado = await intentar_bloquear_clave(session, clave)
@@ -42,7 +47,7 @@ async def _proceso_principal(evento: str, claves: list[str], data: dict[str, Any
                 await guardar_evento_kardex_pendiente(session, evento, almacen_uuid, bien_consumo_uuid, data)
                 continue
 
-        print(f"Procesando evento para {clave}")
+        logger.info(f"Procesando evento para {clave}")
         evento_pendiente: EventoPendienteKardexBienConsumoEntity | None = None
         
         while True:
@@ -64,4 +69,4 @@ async def _proceso_principal(evento: str, claves: list[str], data: dict[str, Any
 
                 except Exception as e:
                     await session.rollback()
-                    raise e
+                    await registrar_error_kardex(session, almacen_uuid, bien_consumo_uuid, str(e))
