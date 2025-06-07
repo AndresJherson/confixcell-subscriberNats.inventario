@@ -1,9 +1,12 @@
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 def get_env_NATS():
     NATS_HOST = os.getenv("NATS_HOST")
     if NATS_HOST is None:
-        raise Exception("NATS_HOST no propocionado")
+        raise Exception("NATS_HOST no proporcionado")
     return NATS_HOST
 
 DB_ORIGEN_HOST = os.getenv("DB_ORIGEN_HOST")
